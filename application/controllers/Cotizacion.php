@@ -644,4 +644,34 @@ class Cotizacion extends MY_Controller
 		$this->output->set_content_type("application/json");
 		$this->output->set_output(json_encode($obj));
 	}
+
+	public function comparar_datos()
+	{
+		$datos_usuario = $this->session->userdata('usuario');
+		$obj = $this->CotizacionModel->comparar_datos($datos_usuario);
+
+		$response = [
+			"status" => !empty($obj) ? "success" : "error",
+			"message" => !empty($obj) ? "Datos comparados correctamente" : "No se encontraron datos",
+			"data" => $obj
+		];
+
+		$this->output->set_content_type("application/json");
+		$this->output->set_output(json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+	}
+
+	public function actualizar_cotizacion_temporal()
+	{
+		$datos_usuario = $this->session->userdata('usuario');
+		$obj = $this->CotizacionModel->actualizar_cotizacion_temporal($datos_usuario);
+
+		$response = [
+			"status" => !empty($obj) ? "success" : "error",
+			"message" => !empty($obj) ? "Datos comparados correctamente" : "No se encontraron datos",
+			"data" => $obj
+		];
+
+		$this->output->set_content_type("application/json");
+		$this->output->set_output(json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+	}
 }

@@ -1405,4 +1405,63 @@ class CotizacionModel extends CI_Model
 		$query = $this->db->get('clientes');
 		return $query->result();
 	}
+
+	/* Actualización de funciones 18 de febrero 2025 */
+
+	public function comparar_datos($datos_usuario)
+	{
+		$id_usuario = $datos_usuario['id_usuario'];
+
+		// Obtener datos en una sola consulta
+		$query = $this->db->query("
+				SELECT 
+					u.id_cotizacion_temporal, 
+					c.hps AS c_hps, c.eficiencia AS c_eficiencia, c.periodo AS c_periodo,
+					d.hps AS d_hps, d.eficiencia AS d_eficiencia, d.periodo AS d_periodo
+				FROM usuarios u
+				LEFT JOIN cotizaciones_temporales c ON u.id_cotizacion_temporal = c.id_cotizacion_temporal
+				LEFT JOIN datos_generales d ON 1 = 1
+				WHERE u.id_usuario = ?", [$id_usuario]);
+
+		if ($query->num_rows() > 0) {
+			$data = $query->row_array();
+
+			// Comparaciones
+			$filtro_hps = $data['c_hps'] == $data['d_hps'];
+			$filtro_eficiencia = $data['c_eficiencia'] == $data['d_eficiencia'];
+			$filtro_periodo = $data['c_periodo'] == $data['d_periodo'];
+
+			return [
+				"filtro_hps" => $filtro_hps,
+				"filtro_eficiencia" => $filtro_eficiencia,
+				"filtro_periodo" => $filtro_periodo,
+				"datos" => $data
+			];
+		}
+
+		return null; // Si no hay datos
+	}
+
+	public function actualizar_cotizacion_temporal($datos_usuario)
+	{
+		$query = $this->db->get('datos_generales');
+		$datos_generales = $query->row_array();
+		// Preparar datos para la actualización
+		$data = [
+			'hps' => $datos_generales['hps'],
+			'eficiencia' => $datos_generales['eficiencia'],
+			'periodo' => $datos_generales['periodo']
+		];
+
+		// Actualizar la cotización temporal con los nuevos valores
+		$this->db->where('id_cotizacion_temporal', $datos_usuario['id_cotizacion_temporal']);
+		$this->db->update('cotizaciones_temporales', $data);
+
+		// Verificar si la actualización fue exitosa
+		if ($this->db->affected_rows() > 0) {
+			return true;
+		}
+
+		return false;
+	}
 }

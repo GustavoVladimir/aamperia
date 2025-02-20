@@ -46,7 +46,6 @@ $(document).ready(function () {
 	});
 
 	$("#formulario_agregar").on("submit", function (e) {
-		console.log("hola");
 		e.preventDefault();
 		$.ajax({
 			url: base_url + "clientes/agregar_cliente",
@@ -56,7 +55,7 @@ $(document).ready(function () {
 			cache: false,
 			processData: false,
 			success: function (obj) {
-				if (obj["resultado"]) {
+				if (obj == true) {
 					Swal.fire({
 						icon: "success",
 						title: "La cliente se ha agregado correctamente",

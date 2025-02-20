@@ -2378,3 +2378,150 @@ $(document).ready(function () {
 		}
 	});
 });
+
+function comparar_datos() {
+	$.ajax({
+		url: base_url + "cotizacion/comparar_datos",
+		dataType: "json",
+		success: function (obj) {
+			console.table(obj);
+
+			if (!obj.data) {
+				enviarNotificacion("Error", "No se recibieron datos válidos.");
+				return;
+			}
+
+			let mensajes = [];
+
+			if (obj.data.filtro_eficiencia === false) {
+				mensajes.push("El valor de eficiencia general fue actualizado.");
+			}
+
+			if (obj.data.filtro_hps === false) {
+				mensajes.push("El valor de HPS general fue actualizado.");
+			}
+
+			if (obj.data.filtro_periodo === false) {
+				mensajes.push("El valor de período general fue actualizado.");
+			}
+
+			// Si hay mensajes, enviar notificación
+			if (mensajes.length > 0) {
+				enviarNotificacion(
+					"Actualización de valores\n",
+					mensajes.join("\n") + "\nHaz clic para actualizar.",
+					() => actualizar_cotizacion()
+				);
+			}
+		},
+		error: function () {
+			enviarNotificacion(
+				"Error",
+				"Hubo un problema al comparar los datos. Inténtalo de nuevo."
+			);
+		},
+	});
+}
+
+// Función para enviar notificación push
+function enviarNotificacion(titulo, mensaje, callback) {
+	console.log("Intentando enviar notificación"); // Añadir esto para depuración
+
+	if (!("Notification" in window)) {
+		alert("Tu navegador no soporta notificaciones push.");
+		return;
+	}
+
+	if (Notification.permission === "granted") {
+		let notificacion = new Notification(titulo, {
+			body: mensaje,
+			icon: "https://cotizador.aamperia.mx/img/logoblanco.png",
+		});
+
+		// Si hay un callback, ejecutarlo cuando el usuario haga clic en la notificación
+		if (callback) {
+			notificacion.onclick = () => {
+				callback();
+				notificacion.close(); // Cerrar la notificación después de hacer clic
+			};
+		}
+	} else if (Notification.permission !== "denied") {
+		Notification.requestPermission().then((permiso) => {
+			if (permiso === "granted") {
+				let notificacion = new Notification(titulo, {
+					body: mensaje,
+					icon: "https://cotizador.aamperia.mx/img/logoblanco.png",
+				});
+
+				if (callback) {
+					notificacion.onclick = () => {
+						callback();
+						notificacion.close(); // Cerrar la notificación después de hacer clic
+					};
+				}
+			} else {
+				console.warn("Permiso para notificaciones denegado.");
+			}
+		});
+	}
+}
+
+// Función para actualizar la cotización
+function actualizar_cotizacion() {
+	Swal.fire({
+		title: "¿Estás seguro de aplicar los cambios?",
+		text: "Este cambio actualizará los valores de la cotización.",
+		icon: "warning",
+		showCancelButton: true,
+		confirmButtonText: "Sí, actualizar",
+		cancelButtonText: "No, mantener",
+	}).then((result) => {
+		if (result.isConfirmed) {
+			// Mostrar mensaje de carga
+			Swal.fire({
+				title: "Actualizando...",
+				text: "Por favor, espera mientras aplicamos los cambios.",
+				icon: "info",
+				allowOutsideClick: false,
+				showConfirmButton: false,
+				willOpen: () => {
+					Swal.showLoading();
+				},
+			});
+
+			// Petición AJAX para actualizar la cotización
+			$.ajax({
+				url: base_url + "cotizacion/actualizar_cotizacion_temporal",
+				type: "POST",
+				dataType: "json",
+				success: function (response) {
+					if (response.status === "success") {
+						Swal.fire({
+							icon: "success",
+							title: "¡Cotización actualizada!",
+							text: "Los valores han sido actualizados correctamente.",
+							timer: 3000,
+							showConfirmButton: false,
+						});
+					} else {
+						Swal.fire({
+							icon: "error",
+							title: "Error al actualizar",
+							text:
+								response.message || "No se pudo completar la actualización.",
+						});
+					}
+				},
+				error: function () {
+					Swal.fire({
+						icon: "error",
+						title: "Error de conexión",
+						text: "Hubo un problema al conectar con el servidor. Intenta de nuevo.",
+					});
+				},
+			});
+		} else {
+			console.log("Cambios no aplicados.");
+		}
+	});
+}
