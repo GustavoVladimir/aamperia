@@ -1,0 +1,22 @@
+MYSQL
+1.- Nueva tabla clientes
+2.- Se separan campos clientes de tabla cotización
+
+PHP
+1.- Se agrega array con campos clientes
+2.- Se genera MVC clientes
+3.- Agregar recibos de luz 
+
+
+JS
+1.- Se hace script para cotizacion y agregar nuevos scripts 
+2.- Hacer frontend de crud de clientes y agregar al asesor 
+
+PENDIENTE
+
+Hacer funcionar detalle_cliente
+1.- Terminar crud de clientes, eliminar recibos
+2.- En cotizaciones, si esta vinculado a un cliente, se muestran los datos del cliente si no se muestran los datos del cliente dentro de la cotización
+
+
+

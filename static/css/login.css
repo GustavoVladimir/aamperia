@@ -1,0 +1,38 @@
+body {
+	margin: 0;
+	padding: 0;
+	background-color: #09384A;
+	height: 100vh;
+}
+
+#login-box {
+	padding-top: 2em;
+	padding-bottom: 2em;
+	border: 1px solid #9C9C9C;
+	background-color: #FFFFFF;
+	min-height: 80%;
+}
+
+#login-logo {
+	width: 40%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-bottom: .5em;
+}
+
+#login-form {
+	padding: 25px 100px;
+}
+
+/* Configuración del sidebar en MÓVIL */
+@media screen and (max-width: 1200px) {
+	#login-form {
+		padding: 25px 25px;
+	}
+	
+	#login-logo {
+		width: 60%;
+	}
+	
+}
